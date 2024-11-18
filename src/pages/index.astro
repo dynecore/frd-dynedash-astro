@@ -9,7 +9,7 @@
 		<meta name="viewport" content="width=device-width" />
 		<meta name="generator" content={Astro.generator} />
 		<title>Astro</title>
-		
+
 		<style>
 			.ok {
 				background-color: #0f0;
@@ -22,10 +22,12 @@
 			}
 
 			.statusdisplay {
-				color:#000; text-align: center; padding: 0 5px; text-transform: uppercase;
+				color: #000;
+				text-align: center;
+				padding: 0 5px;
+				text-transform: uppercase;
 			}
 		</style>
-
 	</head>
 	<body>
 		<h1>Astro final frontend maybe</h1>
@@ -43,29 +45,56 @@
 		</table>
 	</body>
 	<script>
+		const setStatus = (element, status) => {
+					// Limpiar las clases de estado anteriores
+					element.classList.remove("ok", "warn", "error");
+
+					// Añadir la clase correspondiente según el estado
+					element.classList.add(status);
+
+					// Modificar el texto del elemento según el estado
+					if (status === "ok") {
+						element.textContent = "ok";
+					} else if (status === "warn") {
+						element.textContent = "down";
+					} else if (status === "error") {
+						element.textContent = "error";
+					}
+				};
+
 		document.addEventListener("DOMContentLoaded", async () => {
-			const masterStatus = document.getElementById('masterStatus')
-			const masterContent = document.getElementById('masterContent')
+			const masterStatus = document.getElementById("masterStatus");
+			const masterContent = document.getElementById("masterContent");
 
 			try {
 				// Realiza un fetch para consultar el estado de la API
-				const response = await fetch("/api/status");
+				let response;
+				try {
+					response = await fetch("http://localhost:3000/api/status", {
+						method: "HEAD",
+						mode: "no-cors",
+					});
+				} catch {}
 
-				if (response.ok) {
-					//server online
-					masterStatus.textContent = 'ok'
-					masterStatus.classList.add('ok')
-					masterStatus.classList.remove('warn')
-					masterStatus.classList.remove('error')
-					masterContent.textContent = JSON.stringify(response)
-				}else {
-					masterStatus.textContent = 'down'
-					masterStatus.classList.add('warn')
-					masterStatus.classList.remove('ok')
-					masterStatus.classList.remove('error')
-					masterContent.textContent = JSON.stringify(response)
+				if (response) {
+					if (response.ok) {
+						console.log("API Funcionando");
+						setStatus(masterStatus, "ok");
+						masterContent.textContent = JSON.stringify(response)
+					} else {
+						console.log("Posible error de CORS");
+						setStatus(masterStatus, "error");
+						masterContent.textContent = 'Posible error de CORS';
+					}
+				} else {
+					console.log("Servicio de backend caído");
+					setStatus(masterStatus, "warn");
+					masterContent.textContent = 'Servicio de backend caído';
 				}
-			} catch {}
+
+			} catch (error) {
+				console.log(error);
+			}
 		});
 	</script>
 </html>
