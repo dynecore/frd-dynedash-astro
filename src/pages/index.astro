@@ -78,6 +78,9 @@
 
 				if (response) {
 					if (response.ok) {
+						response = await fetch("/api/status", {
+						method: "GET"
+					});
 						console.log("API Funcionando", response);
 						setStatus(masterStatus, "ok");
 						masterContent.textContent = JSON.stringify(response)
