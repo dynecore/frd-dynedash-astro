@@ -9,8 +9,63 @@
 		<meta name="viewport" content="width=device-width" />
 		<meta name="generator" content={Astro.generator} />
 		<title>Astro</title>
+		
+		<style>
+			.ok {
+				background-color: #0f0;
+			}
+			.warn {
+				background-color: #ff0;
+			}
+			.error {
+				background-color: #f00;
+			}
+
+			.statusdisplay {
+				color:#000; text-align: center; padding: 0 5px; text-transform: uppercase;
+			}
+		</style>
+
 	</head>
 	<body>
 		<h1>Astro final frontend maybe</h1>
+		<table border="2">
+			<tr>
+				<th>API</th>
+				<th>STATUS</th>
+				<th>CONTENT</th>
+			</tr>
+			<tr>
+				<td>MASTER</td>
+				<td class="statusdisplay" id="masterStatus">unknown</td>
+				<td class="statusdisplay" id="masterContent"></td>
+			</tr>
+		</table>
 	</body>
+	<script>
+		document.addEventListener("DOMContentLoaded", async () => {
+			const masterStatus = document.getElementById('masterStatus')
+			const masterContent = document.getElementById('masterContent')
+
+			try {
+				// Realiza un fetch para consultar el estado de la API
+				const response = await fetch("/api/status");
+
+				if (response.ok) {
+					//server online
+					masterStatus.textContent = 'ok'
+					masterStatus.classList.add('ok')
+					masterStatus.classList.remove('warn')
+					masterStatus.classList.remove('error')
+					masterContent.textContent = JSON.stringify(response)
+				}else {
+					masterStatus.textContent = 'down'
+					masterStatus.classList.add('warn')
+					masterStatus.classList.remove('ok')
+					masterStatus.classList.remove('error')
+					masterContent.textContent = JSON.stringify(response)
+				}
+			} catch {}
+		});
+	</script>
 </html>
