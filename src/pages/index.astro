@@ -70,7 +70,7 @@
 				// Realiza un fetch para consultar el estado de la API
 				let response;
 				try {
-					response = await fetch("http://localhost:3000/api/status", {
+					response = await fetch("/api/status", {
 						method: "HEAD",
 						mode: "no-cors",
 					});
