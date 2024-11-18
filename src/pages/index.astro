@@ -78,7 +78,7 @@
 
 				if (response) {
 					if (response.ok) {
-						console.log("API Funcionando");
+						console.log("API Funcionando", response);
 						setStatus(masterStatus, "ok");
 						masterContent.textContent = JSON.stringify(response)
 					} else {
