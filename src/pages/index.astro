@@ -79,10 +79,9 @@
 				if (response) {
 					if (response.ok) {
 						response = await fetch("/api/status", { method: "GET" })
-						console.log("API Funcionando", JSON.stringify(response))
 						console.log("response.json:", await response.json());
 						setStatus(masterStatus, "ok");
-						masterContent.textContent = JSON.stringify(response)
+						masterContent.textContent = JSON.stringify(await response.json())
 					} else {
 						console.log("Posible error de CORS");
 						setStatus(masterStatus, "error");
