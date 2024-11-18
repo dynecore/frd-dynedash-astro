@@ -79,9 +79,10 @@
 				if (response) {
 					if (response.ok) {
 						response = await fetch("/api/status", { method: "GET" })
-						console.log("response.json:", await response.json());
-						setStatus(masterStatus, "ok");
-						masterContent.textContent = await JSON.stringify(response.json())
+						const data = await response.json();
+						
+						setStatus(masterStatus, "ok"); // Configura el estado como "ok"
+    					masterContent.textContent = `> ${data.status}`
 					} else {
 						console.log("Posible error de CORS");
 						setStatus(masterStatus, "error");
