@@ -82,7 +82,7 @@
 						method: "GET"
 					});
 						console.log("API Funcionando", JSON.stringify(response));
-						console.log("response.json:", JSON.stringify(response.json()));
+						console.log("response.json:", response.json());
 						setStatus(masterStatus, "ok");
 						masterContent.textContent = JSON.stringify(response)
 					} else {
