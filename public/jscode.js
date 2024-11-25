@@ -1,5 +1,6 @@
 export const webcontroller = (funcion, interval, timeout) => {
 
+    console.log({interval, timeout})
     const thisInterval = setInterval(() => {
         funcion()
     }, interval * 1000);
@@ -9,7 +10,8 @@ export const webcontroller = (funcion, interval, timeout) => {
     setTimeout(() => {
         clearInterval(thisInterval)
         console.log('finishing interval')
-    }, timeout * 1000);
+        location.reload()
+    }, timeout);
 
 }
 
