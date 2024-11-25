@@ -1,0 +1,66 @@
+---
+let session_status = false;
+let session_cookie = 'nocookie'
+let expireIn = 0;
+
+if (Astro.cookies.has("__sessiondemo")) {
+    session_status = true
+    session_cookie = Astro.cookies.get("__sessiondemo")?.value;
+    expireIn = JSON.parse(session_cookie.slice(2)).expiration - Date.now();
+} 
+---
+
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width" />
+        <meta name="generator" content={Astro.generator} />
+        <title>Document</title>
+    </head>
+    <body>
+        <h1>a setinterval demo</h1>
+        <h3 id="mensajeBienvenida">Mensaje de bienvenida</h3>
+        <h2>Server Timer: <span id="expirationTimeServer">expiracion</span></h2>
+        <script define:vars={{expireIn, session_status, session_cookie}} type="module">
+           
+            import { webcontroller } from "../jscode.js";
+
+            const label = document.getElementById('mensajeBienvenida')
+            const expirationLabelServer = document.getElementById('expirationTimeServer')
+
+            let counter = expireIn
+
+            const pageControllerUser = (doc) => {
+                label.textContent = doc.data.randomworld
+                expirationLabelServer.textContent = Math.floor(counter / 1000) + ' segundos para logout. (' + ((doc.data.expiration - Date.now()) /1000) + ')'    
+            }
+            
+            const pageControllerLogout = (doc) => {
+                label.textContent = doc.message
+            }
+            const masterController = async() => {
+
+                const response = await fetch("/api/auth/getSession")
+                    if (response.ok) {
+                        const doc = await response.json();
+                        if (doc.status === "active") {
+                            counter = doc.data.expiration - Date.now()
+                            pageControllerUser(doc)
+                        }
+                        if (doc.status === "inactive") {
+                            
+                            pageControllerLogout(doc)
+                        }
+                        if (doc.status === "error") {
+                            label.textContent = 'error, revisar log'
+                        }
+                    }else{
+                        console.log('nodata')
+                        label.textContent = 'nodata'
+                    }
+            } 
+            //probablemente hay que diferenciar de cuando hay conexion de no
+            webcontroller(masterController, 5, expireIn)
+        </script>
+    </body>
+</html>

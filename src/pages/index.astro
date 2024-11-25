@@ -1,102 +1,171 @@
 ---
+let session_status = false;
+let session_cookie = 'nocookie'
+let expireIn = 0;
+
+if (Astro.cookies.has("__sessiondemo")) {
+    session_status = true
+    session_cookie = Astro.cookies.get("__sessiondemo")?.value;
+    expireIn = JSON.parse(session_cookie.slice(2)).expiration - Date.now();
+}
 
 ---
 
 <html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width" />
+        <meta name="generator" content={Astro.generator} />
+        <title>Document</title>
+    </head>
+    <body>
+        <nav>
+            <a href="/">home</a>
+        </nav>
+        <h1>Dynecore</h1>
+        <h3>hay sesion: <span id="lblSessionStatus">{session_status.toString()}</span></h3>
 
-		<style>
-			.ok {
-				background-color: #0f0;
-			}
-			.warn {
-				background-color: #ff0;
-			}
-			.error {
-				background-color: #f00;
-			}
+        <button id="cookiebtnset">set cookie</button>
+        <button id="cookiebtnremove">remove cookie</button>
 
-			.statusdisplay {
-				color: #000;
-				text-align: center;
-				padding: 0 5px;
-				text-transform: uppercase;
-			}
-		</style>
-	</head>
-	<body>
-		<h1>Astro final frontend maybe</h1>
-		<table border="2">
-			<tr>
-				<th>API</th>
-				<th>STATUS</th>
-				<th>CONTENT</th>
-			</tr>
-			<tr>
-				<td>MASTER</td>
-				<td class="statusdisplay" id="masterStatus">unknown</td>
-				<td class="statusdisplay" id="masterContent"></td>
-			</tr>
-		</table>
-	</body>
-	<script>
-		const setStatus = (element, status) => {
-					// Limpiar las clases de estado anteriores
-					element.classList.remove("ok", "warn", "error");
+        <footer>
+            <a href="/status">check system status</a>
+        </footer>
+        <script define:vars={{session_status}}>
+            //document.getElementById('lblSessionStatus').textContent = session_status.toString()
+        </script>
+        <script define:vars={{ session_status, expireIn }}>
+            /* const pageController = async () => {
+                try {
+                    const response = await fetch("/api/auth/getSession"); // Tu endpoint
+                    if (response.ok) {
+                        const data = await response.json();
+                        console.log("Estado de la sesión:", data);
+                        if (data.status === "active") {
+                            console.log("sesion activa!");
+                        }
+                        if (data.status === "inactive") {
+                            console.log("Por favor inicie sesión");
+                        }
+                        if (data.status === "error") {
+                            console.log("error de sesion!");
+                        }
+                        // Actualiza la UI si es necesario
+                    } else {
+                        console.error(
+                            "Error al consultar el estado de la sesión",
+                        );
+                    }
+                } catch (error) {
+                    console.error("Error en la comunicación:", error);
+                }
+            };
 
-					// Añadir la clase correspondiente según el estado
-					element.classList.add(status);
+            //si no existe sesion desde el inicio (no hace nada)
+            //si existe sesion desde el inicio: set interval (con milisegundos restantes)
+            //otro set interval de debug: que verifique los microsegundos restantes cada segundo
+            let sessionCheckInterval;
+            let debugInterval; // Intervalo para depuración
+            // Función para iniciar el intervalo
+            // Función para iniciar el intervalo si sessionStatus es true
+            function startSessionCheck() {
+                if (haysesion && expireIn > 0) {
+                    if (sessionCheckInterval) {
+                        clearInterval(sessionCheckInterval); // Detener cualquier intervalo previo
+                    }
+                    
+                    sessionCheckInterval = setInterval(() => {
+                        console.log('pin')
+                        pageController(); // Llamar al servidor para verificar la sesión
 
-					// Modificar el texto del elemento según el estado
-					if (status === "ok") {
-						element.textContent = "ok";
-					} else if (status === "warn") {
-						element.textContent = "down";
-					} else if (status === "error") {
-						element.textContent = "error";
-					}
-				};
+                        // Intervalo para mostrar `expireIn` cada segundo (debug)
+                        if (debugInterval) clearInterval(debugInterval); // Evitar múltiples sub-intervalos
+                        let debugExpireIn = expireIn / 1000; // Convertir a segundos
+                        debugInterval = setInterval(() => {
+                            console.log(
+                                "Tiempo restante (expireIn):",
+                                debugExpireIn,
+                                "segundos",
+                            );
+                            debugExpireIn--;
+                            if (debugExpireIn <= 0)
+                                clearInterval(debugInterval); // Detener el sub-intervalo
+                        }, 1000);
+                    }, expireIn);
 
-		document.addEventListener("DOMContentLoaded", async () => {
-			const masterStatus = document.getElementById("masterStatus");
-			const masterContent = document.getElementById("masterContent");
+                    console.log(
+                        "Intervalo principal iniciado con expireIn:",
+                        expireIn,
+                    );
+                } else {
+                    console.log(
+                        "No se inicia el intervalo porque sessionStatus es falso o expireIn es 0.",
+                    );
+                }
+            }
 
-			try {
-				// Realiza un fetch para consultar el estado de la API
-				let response;
-				try {
-					response = await fetch("/api/status", {
-						method: "HEAD",
-						mode: "no-cors",
-					});
-				} catch {}
+            // Función para detener el intervalo
+            function stopSessionCheck() {
+                if (sessionCheckInterval) {
+                    clearInterval(sessionCheckInterval);
+                    console.log("Intervalo principal detenido");
+                    sessionCheckInterval = null;
+                }
+                if (debugInterval) {
+                    clearInterval(debugInterval);
+                    console.log("Intervalo de depuración detenido");
+                    debugInterval = null;
+                }
+            }
 
-				if (response) {
-					if (response.ok) {
-						response = await fetch("/api/status", { method: "GET" })
-						const data = await response.json();
+            startSessionCheck(); */
+        </script>
+        <script>
+            document
+                .getElementById("cookiebtnset")
+                .addEventListener("click", () => {
+                    console.log("sending");
+                    fetch("api/auth/signin", {
+                        method: "POST",
+                        headers: {
+                            Authorization: `Bearer idtokendemo`,
+                        },
+                    })
+                        .then((e) => {
+                            console.log("received");
+                            console.log(e);
+                        })
+                        .catch((e) => {
+                            console.log("dyneerror:", e);
+                        })
+                        .finally(() => {
+                            console.log("fin");
+                        });
+                });
 
-						setStatus(masterStatus, "ok"); // Configura el estado como "ok"
-    					masterContent.textContent = JSON.stringify(data)
-					} else {
-						console.log("Posible error de CORS");
-						setStatus(masterStatus, "error");
-						masterContent.textContent = 'Posible error de CORS';
-					}
-				} else {
-					console.log("Servicio de backend caído");
-					setStatus(masterStatus, "warn");
-					masterContent.textContent = 'Servicio de backend caído';
-				}
+            document
+                .getElementById("cookiebtnremove")
+                .addEventListener("click", () => {
+                    console.log("sending logout");
+                    fetch("api/auth/signout", {
+                        method: "POST",
+                        headers: {
+                            Authorization: `Bearer idtokendemo`,
+                        },
+                    })
+                        .then((e) => {
+                            console.log("received");
+                            console.log(e);
+                        })
+                        .catch((e) => {
+                            console.log("dyneerror:", e);
+                        })
+                        .finally(() => {
+                            console.log("fin");
+                        });
+                });
 
-			} catch (error) {
-				console.log(error);
-			}
-		});
-	</script>
+            //setinterval
+        </script>
+    </body>
 </html>
