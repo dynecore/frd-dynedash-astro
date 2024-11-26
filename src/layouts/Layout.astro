@@ -1,0 +1,139 @@
+---
+let session_status = false;
+let session_cookie = 'nocookie'
+let expireIn = 0;
+
+if (Astro.cookies.has("__sessiondemo")) {
+    session_status = true
+    session_cookie = Astro.cookies.get("__sessiondemo")?.value;
+    expireIn = JSON.parse(session_cookie.slice(2)).expiration - Date.now();
+}
+const {title} = Astro.props
+---
+
+<html lang="es">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width" />
+        <meta name="generator" content={Astro.generator} />
+        <title>{title}</title>
+    </head>
+    <body>
+        <nav class="bg-slate-900 text-white">
+            <!-- <div class="flex items-center justify-center landscape:justify-normal  lg:px-40 p-1 md:p-3 space-x-2 "> -->
+            <div class="flex justify-between p-2 landscape:px-40 space-x-4">
+                <div class="flex items-center">
+                    <div class="bg-red-500 h-7 w-7 rounded-full"></div>
+                    <div class="text-3xl text-center uppercase italic text-bolder">
+                        <a href="/">Lampa Project</a>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <a href="/"
+                        ><div class="lowercase first-letter:uppercase p-1">
+                            {session_status.toString()}
+                        </div></a
+                    >
+                    {
+                        () => {
+                            if (session_status) {
+                                return (
+                                    <>
+                                        <a href="/dashboard">
+                                            <div class="">Administrar</div>
+                                        </a>
+                                        <button id="logoutBtn">Cerrar sesion</button>
+                                    </>
+                                );
+                            } else {
+                                return (
+                                    <a href="/">
+                                        <div class="bg-sky-900 p-1 lowercase first-letter:uppercase">
+                                            Iniciar Sesion
+                                        </div>
+                                    </a>
+                                );
+                            }
+                        }
+                    }
+                </div>
+            </div>
+        </nav>
+       <slot />
+        <script define:vars={{expireIn, session_status}} type="module">
+            import { webcontroller } from "../jscode.js";
+
+            let expiration = expireIn
+            const masterController = async() => {
+
+                const response = await fetch("/api/auth/getSession")
+                    if (response.ok) {
+                        const doc = await response.json();
+                    if (doc.status === "active") {
+                       
+                        console.log('sesion expira en', Math.floor((doc.data.expiration - Date.now())/1000))
+                        expiration = doc.data.expiration - Date.now()
+                    }
+
+                    if (doc.status === "error") {
+                        label.textContent = 'error, revisar log'
+                    }
+                }else{
+                    console.log('nodata')
+                    label.textContent = 'nodata'
+                }
+            }
+            if(session_status){
+                console.log('sesion expira en', Math.floor(expireIn/1000))
+                webcontroller(masterController, 1, expiration)
+            }else{
+                console.log('noSesion, noTimer')
+            }
+            
+        </script>
+
+<script>
+    document.getElementById("cookiebtnset").addEventListener("click", () => {
+        console.log("sending");
+        fetch("api/auth/signin", {
+            method: "POST",
+            headers: {
+                Authorization: `Bearer idtokendemo`,
+            },
+        })
+            .then((e) => {
+                console.log("received");
+                console.log(e);
+                location.reload();
+            })
+            .catch((e) => {
+                console.log("dyneerror:", e);
+            })
+            .finally(() => {
+                console.log("fin");
+            });
+    });
+
+    document.getElementById("logoutBtn").addEventListener("click", () => {
+        console.log("sending logout");
+        fetch("api/auth/signout", {
+            method: "POST",
+            headers: {
+                Authorization: `Bearer idtokendemo`,
+            },
+        })
+            .then((e) => {
+                console.log("received");
+                console.log(e);
+                location.reload();
+            })
+            .catch((e) => {
+                console.log("dyneerror:", e);
+            })
+            .finally(() => {
+                console.log("fin");
+            });
+    });
+</script>
+    </body>
+</html>

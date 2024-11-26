@@ -1,227 +1,31 @@
 ---
+import Layout from "../layouts/Layout.astro"
+
 let session_status = false;
-let session_cookie = 'nocookie'
+let session_cookie = "nocookie";
 let expireIn = 0;
 
 if (Astro.cookies.has("__sessiondemo")) {
-    session_status = true
+    session_status = true;
     session_cookie = Astro.cookies.get("__sessiondemo")?.value;
     expireIn = JSON.parse(session_cookie.slice(2)).expiration - Date.now();
 }
-
 ---
 
-<html lang="es">
-    <head>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width" />
-        <meta name="generator" content={Astro.generator} />
-        <title>Document</title>
-    </head>
-    <body>
-        <nav class="bg-slate-900 text-white " >
-            <!-- <div class="flex items-center justify-center landscape:justify-normal  lg:px-40 p-1 md:p-3 space-x-2 "> -->
-            <div class="flex justify-between p-2 landscape:px-40 space-x-4 ">
-                <div class="flex items-center ">
-                    <div class="bg-red-500 h-7 w-7 rounded-full"></div>
-                    <div class="text-3xl text-center uppercase italic text-bolder">
-                        <a href="/">Lampa Project</a>
-                    </div>
-                </div>
-                <div class="flex items-center space-x-2 ">
-                    <a href="/"><div class="lowercase first-letter:uppercase p-1">{session_status.toString()}</div></a>
-                    {() => {
-                        if (session_status){
-                            return <>
-                                <div class="">Administrar</div>
-                                <div class="">Cerrar Sesion</div>
-                            </>
-                        }else{
-                            return <a href="/"><div class="bg-sky-900 p-1 lowercase first-letter:uppercase">Iniciar Sesion</div></a>
-                        }
-                    }}
-                </div>
-            </div> 
-        </nav>
-      
-        <h1>Dynecore</h1>
-        <h3>hay sesion: <span id="lblSessionStatus">{session_status.toString()}</span></h3>
 
-        <button id="cookiebtnset">set cookie</button>
-        <button id="cookiebtnremove">remove cookie</button>
+<Layout>
+    
+    <h1>Dynecore</h1>
+    <h3>
+        hay sesion: <span id="lblSessionStatus">{session_status.toString()}</span>
+    </h3>
 
-        <footer>
-            <a href="/status">check system status</a>
-        </footer>
-        <script define:vars={{expireIn, session_status}} type="module">
-            import { webcontroller } from "../jscode.js";
+    <button id="cookiebtnset">set cookie</button>
+    <button id="cookiebtnremove">remove cookie</button>
 
-            let expiration = expireIn
-            const masterController = async() => {
+    <footer>
+        <a href="/status">check system status</a>
+    </footer>
 
-                const response = await fetch("/api/auth/getSession")
-                    if (response.ok) {
-                        const doc = await response.json();
-                    if (doc.status === "active") {
-                        //pageControllerUser(doc)
-                       
-                        console.log('sesion expira en', Math.floor((doc.data.expiration - Date.now())/1000))
-                        expiration = doc.data.expiration - Date.now()
-                    }
-                    if (doc.status === "inactive") {
-                        console.log('pon')
-                        //pageControllerLogout(doc)
-                    }
-                    if (doc.status === "error") {
-                        label.textContent = 'error, revisar log'
-                    }
-                }else{
-                    console.log('nodata')
-                    label.textContent = 'nodata'
-                }
-            }
-            if(session_status){
-                console.log('sesion expira en', Math.floor(expireIn/1000))
-                webcontroller(masterController, 1, expiration)
-            }else{
-                console.log('noSesion, noTimer')
-            }
-            
-        </script>
-        <script define:vars={{ session_status, expireIn }}>
-            /* const pageController = async () => {
-                try {
-                    const response = await fetch("/api/auth/getSession"); // Tu endpoint
-                    if (response.ok) {
-                        const data = await response.json();
-                        console.log("Estado de la sesión:", data);
-                        if (data.status === "active") {
-                            console.log("sesion activa!");
-                        }
-                        if (data.status === "inactive") {
-                            console.log("Por favor inicie sesión");
-                        }
-                        if (data.status === "error") {
-                            console.log("error de sesion!");
-                        }
-                        // Actualiza la UI si es necesario
-                    } else {
-                        console.error(
-                            "Error al consultar el estado de la sesión",
-                        );
-                    }
-                } catch (error) {
-                    console.error("Error en la comunicación:", error);
-                }
-            };
-
-            //si no existe sesion desde el inicio (no hace nada)
-            //si existe sesion desde el inicio: set interval (con milisegundos restantes)
-            //otro set interval de debug: que verifique los microsegundos restantes cada segundo
-            let sessionCheckInterval;
-            let debugInterval; // Intervalo para depuración
-            // Función para iniciar el intervalo
-            // Función para iniciar el intervalo si sessionStatus es true
-            function startSessionCheck() {
-                if (haysesion && expireIn > 0) {
-                    if (sessionCheckInterval) {
-                        clearInterval(sessionCheckInterval); // Detener cualquier intervalo previo
-                    }
-                    
-                    sessionCheckInterval = setInterval(() => {
-                        console.log('pin')
-                        pageController(); // Llamar al servidor para verificar la sesión
-
-                        // Intervalo para mostrar `expireIn` cada segundo (debug)
-                        if (debugInterval) clearInterval(debugInterval); // Evitar múltiples sub-intervalos
-                        let debugExpireIn = expireIn / 1000; // Convertir a segundos
-                        debugInterval = setInterval(() => {
-                            console.log(
-                                "Tiempo restante (expireIn):",
-                                debugExpireIn,
-                                "segundos",
-                            );
-                            debugExpireIn--;
-                            if (debugExpireIn <= 0)
-                                clearInterval(debugInterval); // Detener el sub-intervalo
-                        }, 1000);
-                    }, expireIn);
-
-                    console.log(
-                        "Intervalo principal iniciado con expireIn:",
-                        expireIn,
-                    );
-                } else {
-                    console.log(
-                        "No se inicia el intervalo porque sessionStatus es falso o expireIn es 0.",
-                    );
-                }
-            }
-
-            // Función para detener el intervalo
-            function stopSessionCheck() {
-                if (sessionCheckInterval) {
-                    clearInterval(sessionCheckInterval);
-                    console.log("Intervalo principal detenido");
-                    sessionCheckInterval = null;
-                }
-                if (debugInterval) {
-                    clearInterval(debugInterval);
-                    console.log("Intervalo de depuración detenido");
-                    debugInterval = null;
-                }
-            }
-
-            startSessionCheck(); */
-        </script>
-        <script>
-            document
-                .getElementById("cookiebtnset")
-                .addEventListener("click", () => {
-                    console.log("sending");
-                    fetch("api/auth/signin", {
-                        method: "POST",
-                        headers: {
-                            Authorization: `Bearer idtokendemo`,
-                        },
-                    })
-                        .then((e) => {
-                            console.log("received");
-                            console.log(e);
-                            location.reload()
-                        })
-                        .catch((e) => {
-                            console.log("dyneerror:", e);
-                        })
-                        .finally(() => {
-                            console.log("fin");
-                        });
-                });
-
-            document
-                .getElementById("cookiebtnremove")
-                .addEventListener("click", () => {
-                    console.log("sending logout");
-                    fetch("api/auth/signout", {
-                        method: "POST",
-                        headers: {
-                            Authorization: `Bearer idtokendemo`,
-                        },
-                    })
-                        .then((e) => {
-                            console.log("received");
-                            console.log(e);
-                            location.reload()
-                        })
-                        .catch((e) => {
-                            console.log("dyneerror:", e);
-                        })
-                        .finally(() => {
-                            console.log("fin");
-                        });
-                });
-
-            //setinterval
-        </script>
-    </body>
-</html>
+   
+</Layout>

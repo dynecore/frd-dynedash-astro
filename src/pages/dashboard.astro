@@ -1,0 +1,11 @@
+---
+import Layout from "../layouts/Layout.astro"
+
+if (!Astro.cookies.has("__sessiondemo")) {
+    return Astro.redirect("/");
+}
+---
+
+<Layout title="dashboard">
+    <h1>dashboard</h1>
+</Layout>
