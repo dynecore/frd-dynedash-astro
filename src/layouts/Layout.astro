@@ -42,13 +42,13 @@ const {title} = Astro.props
                                         <a href="/dashboard">
                                             <div class="">Administrar</div>
                                         </a>
-                                        <button id="logoutBtn">Cerrar sesion</button>
+                                        <button id="logoutBtn" class="bg-sky-900 p-1 lowercase hover:bg-sky-950 first-letter:uppercase">Cerrar sesion</button>
                                     </>
                                 );
                             } else {
                                 return (
                                     <a href="/">
-                                        <div class="bg-sky-900 p-1 lowercase first-letter:uppercase">
+                                        <div id="loginBtn" class="bg-sky-900 p-1 lowercase hover:bg-sky-950 first-letter:uppercase">
                                             Iniciar Sesion
                                         </div>
                                     </a>
@@ -93,7 +93,7 @@ const {title} = Astro.props
         </script>
 
 <script>
-    document.getElementById("cookiebtnset")?.addEventListener("click", () => {
+    document.getElementById("loginBtn")?.addEventListener("click", () => {
         console.log("sending");
         fetch("/api/auth/signin", {
             method: "POST",
