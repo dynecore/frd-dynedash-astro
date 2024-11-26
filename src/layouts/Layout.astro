@@ -1,6 +1,6 @@
 ---
 let session_status = false;
-let session_cookie = 'nocookie'
+let session_cookie = JSON.stringify({result: 'nocookie'})
 let expireIn = 0;
 
 if (Astro.cookies.has("__sessiondemo")) {
@@ -85,7 +85,7 @@ const {title} = Astro.props
             }
             if(session_status){
                 console.log('sesion expira en', Math.floor(expireIn/1000))
-                webcontroller(masterController, 1, expiration)
+                webcontroller(masterController, 10, expiration)
             }else{
                 console.log('noSesion, noTimer')
             }

@@ -2,7 +2,7 @@
 import Layout from "../layouts/Layout.astro"
 
 let session_status = false;
-let session_cookie = "nocookie";
+let session_cookie = JSON.stringify({result: 'nocookie'})
 let expireIn = 0;
 
 if (Astro.cookies.has("__sessiondemo")) {

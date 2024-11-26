@@ -1,7 +1,14 @@
 ---
+let session_status = false;
+let session_cookie = JSON.stringify({result: 'nocookie'});
+let expireIn = 0;
 
-    const sessionCookie = Astro.cookies.get("__sessiondemo")?.value;
-	
+if (Astro.cookies.has("__sessiondemo")) {
+	session_status = true;
+	session_cookie = Astro.cookies.get("__sessiondemo")?.value;
+	expireIn = JSON.parse(session_cookie.slice(2)).expiration - Date.now();
+}
+const { title } = Astro.props;
 ---
 
 <html lang="en">
@@ -11,27 +18,7 @@
 		<meta name="viewport" content="width=device-width" />
 		<meta name="generator" content={Astro.generator} />
 		<title>Astro</title>
-		<script>
-			console.log('script on')
-			const ws = new WebSocket('ws://localhost:3000');
-
-			// Manejar eventos de conexión
-			ws.addEventListener('open', () => {
-				console.log('Conectado al servidor WebSocket.');
-			});
-
-			// Manejar mensajes del servidor
-			ws.addEventListener('message', (event) => {
-				console.log(event.data)
-				/* const data = JSON.parse(event.data);
-				console.log(`Servidor: ${data.message}`); */
-			});
-
-			// Manejar cierre de conexión
-			ws.addEventListener('close', () => {
-				console.log('Conexión cerrada.');
-			});
-		</script>
+		
 		<style>
 			.ok {
 				background-color: #0f0;
@@ -44,7 +31,7 @@
 			}
 
 			.statusdisplay {
-				color: #000;
+				
 				text-align: center;
 				padding: 0 5px;
 				text-transform: uppercase;
@@ -53,48 +40,99 @@
 	</head>
 	<body>
 		<h1>Astro final frontend maybe</h1>
-		<table border="2">
+		<style>
+			table, tr, td, th{
+				@apply border-2 border-black text-center
+			}
+			th{
+				@apply bg-stone-300
+			}
+
+			tr td:first-child {
+				@apply bg-yellow-100
+			}
+
+		</style>
+		
+		<table>
 			<tr>
-				<th>API</th>
+				<th class="min-w-40">API</th>
 				<th>STATUS</th>
 				<th>CONTENT</th>
 			</tr>
 			<tr>
 				<td>MASTER</td>
 				<td class="statusdisplay" id="masterStatus">unknown</td>
-				<td class="statusdisplay" id="masterContent"></td>
+				<td class="statusdisplay bg-black text-white font-mono text-sm" id="masterContent"></td>
 			</tr>
 			<tr>
 				<td>SESSION DEMO</td>
-				<td colspan="2" id="sessionCookieDemo" class="statusdisplay">{JSON.stringify(sessionCookie)}</td>
-				
+				{
+					
+					() => {
+						if (session_status) {
+							return <td class="statusdisplay ok" id="sessionStatus">LOGGED IN</td>
+							
+						}else{
+							return <td class="statusdisplay warn" id="sessionStatus">LOGGED OUT</td>
+							
+						}
+					}
+				}
+				<td  id="sessionCookieDemo" class=""
+					><iframe id="jsonIframe" class="-m-[1px]"></iframe></td
+				>
 			</tr>
 		</table>
 
 		
 	</body>
+
+	<script define:vars={{session_cookie, session_status}}>
+let jsonblob;
+
+        // Crear un Blob con el tipo de contenido JSON
+		if(session_status){
+			jsonBlob = new Blob([JSON.stringify(JSON.parse(session_cookie.slice(2)), null, 2)], { type: "application/json" });
+		}else{
+		   jsonBlob = new Blob([JSON.stringify(session_cookie)], { type: "application/json" });
+		}
+		
+        
+
+        // Crear una URL para el Blob
+        const jsonURL = URL.createObjectURL(jsonBlob);
+
+        // Asignar la URL al iframe
+        const iframe = document.getElementById("jsonIframe")
+		
+        iframe.src = jsonURL;
+    </script>
+	
 	<script>
+
+		
 		const setStatus = (element, status) => {
-					// Limpiar las clases de estado anteriores
-					element.classList.remove("ok", "warn", "error");
+			// Limpiar las clases de estado anteriores
+			element.classList.remove("ok", "warn", "error");
 
-					// Añadir la clase correspondiente según el estado
-					element.classList.add(status);
+			// Añadir la clase correspondiente según el estado
+			element.classList.add(status);
 
-					// Modificar el texto del elemento según el estado
-					if (status === "ok") {
-						element.textContent = "ok";
-					} else if (status === "warn") {
-						element.textContent = "down";
-					} else if (status === "error") {
-						element.textContent = "error";
-					}
-				};
+			// Modificar el texto del elemento según el estado
+			if (status === "ok") {
+				element.textContent = "ok";
+			} else if (status === "warn") {
+				element.textContent = "down";
+			} else if (status === "error") {
+				element.textContent = "error";
+			}
+		};
 
 		document.addEventListener("DOMContentLoaded", async () => {
 			const masterStatus = document.getElementById("masterStatus");
 			const masterContent = document.getElementById("masterContent");
-
+			
 			try {
 				// Realiza un fetch para consultar el estado de la API
 				let response;
@@ -107,22 +145,23 @@
 
 				if (response) {
 					if (response.ok) {
-						response = await fetch("/api/status", { method: "GET" })
+						response = await fetch("/api/status", {
+							method: "GET",
+						});
 						const data = await response.json();
 
 						setStatus(masterStatus, "ok"); // Configura el estado como "ok"
-    					masterContent.textContent = JSON.stringify(data)
+						masterContent.textContent = JSON.stringify(data);
 					} else {
 						console.log("Posible error de CORS");
 						setStatus(masterStatus, "error");
-						masterContent.textContent = 'Posible error de CORS';
+						masterContent.textContent = "Posible error de CORS";
 					}
 				} else {
 					console.log("Servicio de backend caído");
 					setStatus(masterStatus, "warn");
-					masterContent.textContent = 'Servicio de backend caído';
+					masterContent.textContent = "Servicio de backend caído";
 				}
-
 			} catch (error) {
 				console.log(error);
 			}
