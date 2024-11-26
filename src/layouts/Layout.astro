@@ -93,9 +93,9 @@ const {title} = Astro.props
         </script>
 
 <script>
-    document.getElementById("cookiebtnset").addEventListener("click", () => {
+    document.getElementById("cookiebtnset")?.addEventListener("click", () => {
         console.log("sending");
-        fetch("api/auth/signin", {
+        fetch("/api/auth/signin", {
             method: "POST",
             headers: {
                 Authorization: `Bearer idtokendemo`,
@@ -114,9 +114,9 @@ const {title} = Astro.props
             });
     });
 
-    document.getElementById("logoutBtn").addEventListener("click", () => {
+    document.getElementById("logoutBtn")?.addEventListener("click", () => {
         console.log("sending logout");
-        fetch("api/auth/signout", {
+        fetch("/api/auth/signout", {
             method: "POST",
             headers: {
                 Authorization: `Bearer idtokendemo`,
