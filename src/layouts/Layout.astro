@@ -60,6 +60,9 @@ const {title} = Astro.props
             </div>
         </nav>
        <slot />
+       <footer class="bg-green-500">
+        <a href="/status">check system status (footer)</a>
+    </footer>
         <script define:vars={{expireIn, session_status}} type="module">
             import { webcontroller } from "../jscode.js";
 
