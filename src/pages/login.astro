@@ -1,7 +1,53 @@
 ---
 import Layout from "../layouts/Layout.astro"
+import { Image } from "astro:assets"
+import iconGoogle from "../icons/icon-google.svg";
+import iconFacebook from "../icons/icon-facebook-2.svg";
+
+if (Astro.cookies.has("__session")) {
+    return Astro.redirect("/dashboard");
+}
 ---
 
 <Layout>
-    login
+    <section class="grid landscape:grid-cols-2 lg:px-32 p-2">
+        <div class="bxg-yellow-500 flex flex-col portrait:text-center">
+            <div class="text-3xl my-10 ">Ingresa a tu cuenta en uno de los siguientes servicios para iniciar sesión</div>
+            <div class="flex-grow"></div>
+            <div class="text-lg text-blue-600 underline">¿Problemas para iniciar sesion?</div>
+            
+        </div>
+        <div class="bxg-green-500 ">
+            <div class="border-2 p-6 rounded-xl my-10 space-y-5">
+                <div class="text-xl text-center  ">Elija un proveedor</div>
+                
+                <div id="loginBtn" class="bg-gray-200 hover:bg-gray-300  rounded-full">
+                    <div class="flex items-center justify-between p-2 cursor-pointer rounded-full">
+                        <!-- Icono -->
+                         <Image src={iconGoogle} height={30} alt="icon" />
+                    
+                        <!-- Texto -->
+                        <div class="text-xl flex-grow text-center">
+                           Iniciar con google
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-blue-500 hover:bg-blue-400 rounded-full text-white">
+                    <div class="flex items-center justify-between p-2 cursor-pointer rounded-full">
+                        <!-- Icono -->
+                         <Image src={iconFacebook} height={30} alt="icon" />
+                    
+                        <!-- Texto -->
+                        <div class="text-xl flex-grow text-center">
+                           Iniciar con Facebook
+                        </div>
+                    </div>
+                </div>
+               
+
+                <!-- <LargeButtonWithIcon label="Continuar con Google" icon={iconGoogle} class="bg-gray-200 hover:bg-gray-300 rounded-full"  />
+                <LargeButtonWithIcon label="Continuar con Facebook" icon={iconFacebook} class="bg-blue-500 hover:bg-blue-400 rounded-full text-white " /></div> -->
+        </div>
+    </section>
 </Layout>
