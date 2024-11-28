@@ -2,6 +2,7 @@
 import Layout from "../layouts/Layout.astro"
 
 if (!Astro.cookies.has("__sessiondemo")) {
+    if( !Astro.cookies.has("__session"))
     return Astro.redirect("/");
 }
 ---

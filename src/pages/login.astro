@@ -5,9 +5,10 @@ import IconFacebook from "../icons/icon-facebook-2.astro";
 import IconTwitter from "../icons/icon-twitter.astro"
 import LargeButtonWithIcon from "../components/LargeButtonWithIcon.astro"
 
-if (Astro.cookies.has("__sessiondemo")) {
+if (Astro.cookies.has("__sessiondemo") || Astro.cookies.has("__session")) {
     return Astro.redirect("/dashboard");
 }
+
 ---
 
 <Layout title="Dynecore - Login">
@@ -41,10 +42,35 @@ if (Astro.cookies.has("__sessiondemo")) {
         </div>
     </section>
     <script>
+        import { getAuth, GoogleAuthProvider, signInWithPopup } from "firebase/auth"
+import { app } from "../firebase/client"
+
+        const auth = getAuth(app)
+
         document.getElementById('googleLoginBtn').addEventListener('click', async () => {
             console.log('Google Button!')
 
-            
+            const provider = new GoogleAuthProvider()
+
+            try {
+                const googleCredential = await signInWithPopup(auth, provider)
+                const idToken = await googleCredential.user.getIdToken()
+
+                const response = await fetch('/api/auth/signin', 
+                {
+                        method: "POST",
+                        headers: {
+                            Authorization: `Bearer ${idToken}`,
+                        },
+                    },
+                )
+
+                if (response.redirected) {
+                    window.location.assign(response.url);
+                }
+            } catch (error) {
+                console.error("Error during Google sign-in:", error);
+            }
         })
         document.getElementById('facebookLoginBtn').addEventListener('click', () => {
             console.log('Face Button!')

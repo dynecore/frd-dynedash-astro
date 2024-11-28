@@ -10,6 +10,13 @@ if (Astro.cookies.has("__sessiondemo")) {
     session_cookie = Astro.cookies.get("__sessiondemo")?.value;
     expireIn = JSON.parse(session_cookie.slice(2)).expiration - Date.now();
 }
+
+if (Astro.cookies.has("__session")) {
+    console.log("haysesion!")
+    session_status = true;
+    //session_cookie = Astro.cookies.get("__sessiondemo")?.value;
+    //expireIn = JSON.parse(session_cookie.slice(2)).expiration - Date.now();
+}
 ---
 
 

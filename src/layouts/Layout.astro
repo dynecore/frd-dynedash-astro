@@ -3,10 +3,36 @@ let session_status = false;
 let session_cookie = JSON.stringify({result: 'nocookie'})
 let expireIn = 0;
 
+//const jwt = require('jsonwebtoken');
+import jwt from 'jsonwebtoken'
+function decodeJWT(token) {
+    try {
+        // Decodifica el payload del token sin verificar la firma
+        const decoded = jwt.decode(token);
+        return decoded;
+    } catch (error) {
+        console.error("Error al decodificar el JWT:", error);
+        return null;
+    }
+}
+
+
 if (Astro.cookies.has("__sessiondemo")) {
     session_status = true
     session_cookie = Astro.cookies.get("__sessiondemo")?.value;
     expireIn = JSON.parse(session_cookie.slice(2)).expiration - Date.now();
+}
+
+if (Astro.cookies.has("__session")){
+    session_status = true
+    session_cookie = Astro.cookies.get("__session")?.value;
+
+    const payload = decodeJWT(session_cookie)
+   
+    expireIn = payload.exp * 1000 - Date.now()
+
+    
+
 }
 const {title} = Astro.props
 ---
@@ -65,8 +91,10 @@ const {title} = Astro.props
     </footer>
         <script define:vars={{expireIn, session_status}} type="module">
             import { webcontroller } from "../jscode.js";
-
-            let expiration = expireIn
+            if(expireIn != 'unknwon'){
+                let expiration = expireIn
+            }
+            
             const masterController = async() => {
 
                 const response = await fetch("/api/auth/getSession")
@@ -86,10 +114,12 @@ const {title} = Astro.props
                     label.textContent = 'nodata'
                 }
             }
-            if(session_status){
+            if(session_status && expireIn != 'unknown'){
                 console.log('sesion expira en', Math.floor(expireIn/1000))
                 webcontroller(masterController, 10, expiration)
-            }else{
+            }else if(session_status && expireIn == 'unknown'){
+                console.log('true sesion, no timer yet')
+            }else {
                 console.log('noSesion, noTimer')
             }
             
@@ -98,7 +128,7 @@ const {title} = Astro.props
 <script>
     document.getElementById("loginBtn")?.addEventListener("click", () => {
         console.log("sending");
-        fetch("/api/auth/signin", {
+        fetch("/api/auth/signinDemo", {
             method: "POST",
             headers: {
                 Authorization: `Bearer idtokendemo`,

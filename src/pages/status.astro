@@ -1,12 +1,22 @@
 ---
 let session_status = false;
+let session_status2 = false;
 let session_cookie = JSON.stringify({result: 'nocookie'});
+let session_cookie2 = JSON.stringify({result: 'nocookie'});
 let expireIn = 0;
+
+import jwt from 'jsonwebtoken'
 
 if (Astro.cookies.has("__sessiondemo")) {
 	session_status = true;
 	session_cookie = Astro.cookies.get("__sessiondemo")?.value;
 	expireIn = JSON.parse(session_cookie.slice(2)).expiration - Date.now();
+}
+
+if (Astro.cookies.has("__session")) {
+	session_status2 = true;
+	session_cookie2 = jwt.decode(Astro.cookies.get("__session")?.value)
+	//expireIn = JSON.parse(session_cookie.slice(2)).expiration - Date.now();
 }
 const { title } = Astro.props;
 ---
@@ -39,57 +49,67 @@ const { title } = Astro.props;
 		</style>
 	</head>
 	<body>
-		<h1>Astro final frontend maybe</h1>
-		<style>
-			table, tr, td, th{
-				@apply border-2 border-black text-center
-			}
-			th{
-				@apply bg-stone-300
-			}
 
-			tr td:first-child {
-				@apply bg-yellow-100
-			}
+		<h1 class="bg-green-300 text-center text-4xl font-bold p-10 mx-40">STATUS TABLE</h1>
+		<div class="bg-red-300 flex mx-40 ">
+			<span class="m-1 mx-4 italic font-bold text-2xl">Dynecore Development Service</span>
+			<a href="/" class="m-1 mx-4 text-blue-700 underline content-end">Go Home</a>
+		</div>
+<div class=" grid grid-cols-5 text-center uppercase mx-40 bg-red-200">
+	<div class="border-t-2 border-l-2 border-black">api</div>
+	<div class="border-t-2 border-l-2 border-black">status</div>
+	<div class="border-t-2 border-x-2 border-black col-span-3">content</div>
+	
+	<div class="border-t-2 border-l-2 border-black">master</div>
+	<div class="statusdisplay border-t-2 border-l-2 border-black" id="masterStatus">unknown</div>
+	<div class="statusdisplay border-t-2 border-x-2 col-span-3 border-black bg-black text-white font-mono text-sm" id="masterContent"></div>
 
-		</style>
-		
-		<table>
-			<tr>
-				<th class="min-w-40">API</th>
-				<th>STATUS</th>
-				<th>CONTENT</th>
-			</tr>
-			<tr>
-				<td>MASTER</td>
-				<td class="statusdisplay" id="masterStatus">unknown</td>
-				<td class="statusdisplay bg-black text-white font-mono text-sm" id="masterContent"></td>
-			</tr>
-			<tr>
-				<td>SESSION DEMO</td>
-				{
+	<div class="border-t-2 border-l-2 border-black">session cookie</div>
+	{
 					
-					() => {
-						if (session_status) {
-							return <td class="statusdisplay ok" id="sessionStatus">LOGGED IN</td>
-							
-						}else{
-							return <td class="statusdisplay warn" id="sessionStatus">LOGGED OUT</td>
-							
-						}
-					}
-				}
-				<td  id="sessionCookieDemo" class=""
-					><iframe id="jsonIframe" class="-m-[1px]"></iframe></td
-				>
-			</tr>
-		</table>
+		() => {
+			if (session_status2) {
+				
+				return <><div class="statusdisplay ok border-t-2 border-l-2 border-black" id="sessionStatus2">LOGGED IN</div></>
+				
+			}else{
+				return <><div class="statusdisplay warn border-t-2 border-l-2 border-black" id="sessionStatus2">LOGGED OUT</div></>
+				
+			}
+		}
+	}
+
+	<div class="border-t-2 border-x-2 border-black col-span-3">
+		<iframe id="jsonIframe2" class="w-full"></iframe>
+	</div>
+
+	<div class="border-y-2 border-l-2 border-black">session demo</div>
+	{
+					
+		() => {
+			if (session_status) {
+				
+				return <><div class="statusdisplay ok border-y-2 border-l-2 border-black" id="sessionStatus">LOGGED IN</div></>
+				
+			}else{
+				return <><div class="statusdisplay warn border-y-2 border-l-2 border-black" id="sessionStatus">LOGGED OUT</div></>
+				
+			}
+		}
+	}
+
+	<div class="border-2 border-black col-span-3">
+		<iframe id="jsonIframe" class="w-full"></iframe>
+	</div>
+</div>
+
+
 
 		
 	</body>
 
 	<script define:vars={{session_cookie, session_status}}>
-let jsonblob;
+		let jsonblob;
 
         // Crear un Blob con el tipo de contenido JSON
 		if(session_status){
@@ -98,8 +118,6 @@ let jsonblob;
 		   jsonBlob = new Blob([JSON.stringify(session_cookie)], { type: "application/json" });
 		}
 		
-        
-
         // Crear una URL para el Blob
         const jsonURL = URL.createObjectURL(jsonBlob);
 
@@ -108,6 +126,16 @@ let jsonblob;
 		
         iframe.src = jsonURL;
     </script>
+
+<script define:vars={{session_cookie2, session_status2}}>
+
+	const jsonBlob2 = new Blob([JSON.stringify(session_cookie2)], { type: "application/json" });
+		
+console.log(jsonBlob2)
+	// Asignar la URL al iframe
+	const iframe2 = document.getElementById("jsonIframe2").src = URL.createObjectURL(jsonBlob2)
+	
+</script>
 	
 	<script>
 
