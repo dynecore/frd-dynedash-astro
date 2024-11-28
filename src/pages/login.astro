@@ -10,7 +10,7 @@ if (Astro.cookies.has("__sessiondemo")) {
 }
 ---
 
-<Layout>
+<Layout title="Dynecore - Login">
     <section class="grid landscape:grid-cols-2 lg:px-32 p-2">
         <div class="bxg-yellow-500 flex flex-col portrait:text-center">
             <div class="text-3xl my-10 ">Ingresa a tu cuenta en uno de los siguientes servicios para iniciar sesión</div>
@@ -22,18 +22,36 @@ if (Astro.cookies.has("__sessiondemo")) {
             <div class="border-2 p-6 rounded-xl my-10 space-y-5">
                 <div class="text-xl text-center  ">Elija un proveedor</div>
                 
-                <LargeButtonWithIcon label="Continuar con Google" id="loginBtn" class="bg-gray-200 hover:bg-gray-300 rounded-full">
+                <LargeButtonWithIcon label="Continuar con Cookie Local" id="loginBtn" class="bg-red-200 hover:bg-red-300 rounded-full">
+                    
+                </LargeButtonWithIcon>
+
+                <LargeButtonWithIcon label="Continuar con Google" id="googleLoginBtn" class="bg-gray-200 hover:bg-gray-300 rounded-full">
                     <IconGoogle height="30" />
                 </LargeButtonWithIcon>
 
-                <LargeButtonWithIcon label="Continuar con Facebook" id="faceBtn" class="bg-blue-500 hover:bg-blue-400 rounded-full text-white">
+                <LargeButtonWithIcon label="Continuar con Facebook" id="facebookLoginBtn" class="bg-blue-500 hover:bg-blue-400 rounded-full text-white">
                     <IconFacebook height="30" fillColor="#fff" />
                 </LargeButtonWithIcon>
 
-                <LargeButtonWithIcon label="Continuar con X" id="xBtn" class="bg-black hover:bg-[#00ACEE] rounded-full text-white">
+                <LargeButtonWithIcon label="Continuar con X" id="twitterLogginBtn" class="bg-black hover:bg-[#00ACEE] rounded-full text-white">
                     <IconTwitter fillColor="#fff" height="30" />
                 </LargeButtonWithIcon>               
 
         </div>
     </section>
+    <script>
+        document.getElementById('googleLoginBtn').addEventListener('click', async () => {
+            console.log('Google Button!')
+
+            
+        })
+        document.getElementById('facebookLoginBtn').addEventListener('click', () => {
+            console.log('Face Button!')
+        })
+        document.getElementById('twitterLogginBtn').addEventListener('click', () => {
+            console.log('Twitter Button!')
+        })
+    </script>
+  
 </Layout>
